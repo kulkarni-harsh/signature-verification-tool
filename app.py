@@ -1,8 +1,26 @@
+from operator import contains
 import numpy as np
 import cv2
 import streamlit as st
-
 from functions import preprocess_test_image
+
+import tensorflow as tf
+from tensorflow.keras.layers import Layer
+
+@st.cache(allow_output_mutation=True)
+def get_model():
+    ## Siamese Distance class
+    class L1Dist(Layer):
+        def __init__(self,**kwargs):
+            super().__init__()
+
+        def call(self,input_embedding,validation_embedding):
+            return tf.math.abs(input_embedding-validation_embedding)
+    siamese_model=tf.keras.models.load_model('model/siamesemodelfocal.h5',
+                                         custom_objects={'L1Dist':L1Dist, 'BinaryFocalCrossentropy':tf.keras.losses.BinaryFocalCrossentropy})
+    return siamese_model
+
+
 st.set_page_config(layout="wide")
 
 headerSite=st.container()
@@ -10,6 +28,7 @@ introduction=st.container()
 implementation=st.container()
 dataset=st.container()
 testing=st.container()
+testing_button=st.container()
 credits=st.container()
 
 with headerSite:
@@ -63,16 +82,29 @@ with testing:
     
     if anchor_file is not None:
         # Convert the file to an opencv image.
+        connectivity_1=anchor_image_col.slider('Noise Connectivity Value',0,1000,5,key='connectivity_1')
+        threshold_1=anchor_image_col.slider('Noise Threshold Size',0,1000,5,key='threshold_1')
         anchor_bytes = np.asarray(bytearray(anchor_file.read()), dtype=np.uint8)
         anchor_image = cv2.imdecode(anchor_bytes, 0)
-        anchor_image=preprocess_test_image(anchor_image,4,50)
+        anchor_image=preprocess_test_image(anchor_image,connectivity_1,threshold_1)
         anchor_image_col.image(anchor_image)
-        anchor_image_col.write(type(anchor_image))
 
     if validation_file is not None:
         # Convert the file to an opencv image.
+        connectivity_2=validation_image_col.slider('Noise Connectivity Value',0,400,5,key='connectivity_2')
+        threshold_2=validation_image_col.slider('Noise Threshold Size',0,400,5,key='threshold_2')
         validation_bytes = np.asarray(bytearray(validation_file.read()), dtype=np.uint8)
         validation_image = cv2.imdecode(validation_bytes, 0)
-        validation_image=preprocess_test_image(validation_image,4,50)
+        validation_image=preprocess_test_image(validation_image,connectivity_2,threshold_2)
         validation_image_col.image(validation_image)
     
+with testing_button:
+    st.subheader("Test Above Images")
+    test_button = st.button('Verify Signature')
+    if test_button:
+        model=get_model()
+        result=model.predict([np.expand_dims(anchor_image,[0,-1]),np.expand_dims(validation_image,[0,-1])])
+        st.write(str(result))
+
+
+
