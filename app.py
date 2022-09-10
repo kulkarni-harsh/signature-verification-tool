@@ -1,4 +1,3 @@
-from operator import contains
 import numpy as np
 import cv2
 import streamlit as st
@@ -7,7 +6,6 @@ from functions import preprocess_test_image
 import tensorflow as tf
 from tensorflow.keras.layers import Layer
 
-@st.cache(allow_output_mutation=True)
 def get_model():
     ## Siamese Distance class
     class L1Dist(Layer):
@@ -16,7 +14,7 @@ def get_model():
 
         def call(self,input_embedding,validation_embedding):
             return tf.math.abs(input_embedding-validation_embedding)
-    siamese_model=tf.keras.models.load_model('model/siamesemodelfocal.h5',
+    siamese_model=tf.keras.models.load_model('model/siamese_model.h5',
                                          custom_objects={'L1Dist':L1Dist, 'BinaryFocalCrossentropy':tf.keras.losses.BinaryFocalCrossentropy})
     return siamese_model
 
@@ -25,22 +23,71 @@ st.set_page_config(layout="wide")
 
 headerSite=st.container()
 introduction=st.container()
-implementation=st.container()
-dataset=st.container()
 testing=st.container()
 testing_button=st.container()
+implementation=st.container()
+dataset=st.container()
 credits=st.container()
 
 with headerSite:
+    
     st.title('Signature Verification Tool')
+    st.markdown('-----------')
 
 with introduction:
+
     st.subheader('Introduction')
     st.write("""
         A conventional method of verifying an individual's indentity is their Signatures.
         Someone with malicious intent may try to forge an individual's signature.
         This tool can check whether the signature is forged or not.
     """)
+
+
+with testing:
+    st.markdown('-----------')
+    st.subheader("Test the Signature Verification Tool")
+    anchor_image_col,validation_image_col=st.columns(2)
+    anchor_file=anchor_image_col.file_uploader('Upload Anchor Image',['png','jpg'])
+    validation_file=validation_image_col.file_uploader('Upload Validation Image',['png','jpg'])
+    
+    if anchor_file is not None:
+        # Convert the file to an opencv image.
+        threshold_1=anchor_image_col.slider('Noise Threshold Size',0,400,5,key='threshold_1')
+        anchor_bytes = np.asarray(bytearray(anchor_file.read()), dtype=np.uint8)
+        anchor_image = cv2.imdecode(anchor_bytes, 0)
+        anchor_image=preprocess_test_image(anchor_image,threshold_1)
+        anchor_image_col.image(anchor_image,use_column_width='always')
+        
+
+    if validation_file is not None:
+        # Convert the file to an opencv image.
+        threshold_2=validation_image_col.slider('Noise Threshold Size',0,400,5,key='threshold_2')
+        validation_bytes = np.asarray(bytearray(validation_file.read()), dtype=np.uint8)
+        validation_image = cv2.imdecode(validation_bytes, 0)
+        validation_image=preprocess_test_image(validation_image,threshold_2)
+        validation_image_col.image(validation_image,use_column_width='always')
+    
+with testing_button:
+    st.subheader("Test Above Images")
+    test_button = st.button('Verify Signature')
+    if test_button:
+        try:
+            with st.spinner('Wait for it...'):
+                model=get_model()
+                result=model.predict([np.expand_dims(anchor_image,[0,-1]),np.expand_dims(validation_image,[0,-1])])
+            # st.write(str(result))
+            # st.write(np.expand_dims(anchor_image,[0,-1]).shape)
+            
+            if result>0.5:
+                st.balloons()
+                st.success("Both Signatures are the same",icon='✔️')
+            else:
+                st.error("Validation Signature is Forged",icon='❌')
+        except:
+            st.warning("Please Upload Images",icon='⚠️')
+    st.markdown('-----------')
+
 
 with implementation:
     st.subheader('Implementation Details')
@@ -63,6 +110,7 @@ with implementation:
         Below is my version of Siamese model developed using Tensorflow.    
     """)
     st.image('assets/model_plot.png')
+    st.markdown('-----------')
 
 with dataset:
     st.subheader('Dataset Sources')
@@ -72,39 +120,15 @@ with dataset:
         * [ICDAR 2011 Signature Verification Competition (SigComp2011)](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2011_Signature_Verification_Competition_(SigComp2011))
         Code for combining dataset as per their different nomenclature is provided on my [Github repo](https://github.com/kulkarni-harsh/signature-verification-tool)
     """)
+    st.markdown('-----------')
+
+with credits:
+    st.subheader('Credits')
+    st.markdown("""
+        I would like to thank 
+        * [Nick](https://www.youtube.com/c/NicholasRenotte) for his awesome [playlist](https://www.youtube.com/playlist?list=PLgNJO2hghbmhHuhURAGbe6KWpiYZt0AMH) on Siamese Network.
+        * [Misra](https://www.youtube.com/c/Soyouwanttobeadatascientist) for her Streamlit tutorial.
+        * [Streamlit Docs](https://docs.streamlit.io/) are lit 🔥
+
+    """)
     
-
-with testing:
-    st.subheader("Test the Signature Verification Tool")
-    anchor_image_col,validation_image_col=st.columns(2)
-    anchor_file=anchor_image_col.file_uploader('Upload Anchor Image',['png','jpg'])
-    validation_file=validation_image_col.file_uploader('Upload Validation Image',['png','jpg'])
-    
-    if anchor_file is not None:
-        # Convert the file to an opencv image.
-        connectivity_1=anchor_image_col.slider('Noise Connectivity Value',0,1000,5,key='connectivity_1')
-        threshold_1=anchor_image_col.slider('Noise Threshold Size',0,1000,5,key='threshold_1')
-        anchor_bytes = np.asarray(bytearray(anchor_file.read()), dtype=np.uint8)
-        anchor_image = cv2.imdecode(anchor_bytes, 0)
-        anchor_image=preprocess_test_image(anchor_image,connectivity_1,threshold_1)
-        anchor_image_col.image(anchor_image)
-
-    if validation_file is not None:
-        # Convert the file to an opencv image.
-        connectivity_2=validation_image_col.slider('Noise Connectivity Value',0,400,5,key='connectivity_2')
-        threshold_2=validation_image_col.slider('Noise Threshold Size',0,400,5,key='threshold_2')
-        validation_bytes = np.asarray(bytearray(validation_file.read()), dtype=np.uint8)
-        validation_image = cv2.imdecode(validation_bytes, 0)
-        validation_image=preprocess_test_image(validation_image,connectivity_2,threshold_2)
-        validation_image_col.image(validation_image)
-    
-with testing_button:
-    st.subheader("Test Above Images")
-    test_button = st.button('Verify Signature')
-    if test_button:
-        model=get_model()
-        result=model.predict([np.expand_dims(anchor_image,[0,-1]),np.expand_dims(validation_image,[0,-1])])
-        st.write(str(result))
-
-
-

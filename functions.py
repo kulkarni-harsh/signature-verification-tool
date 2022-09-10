@@ -1,11 +1,11 @@
 import numpy as np
 import cv2
-def preprocess_test_image(img:np.array,connectivity,min_size,):
+def preprocess_test_image(img:np.array,min_size,):
     # Read in image from file path
-    img=cv2.resize(img,(200,100),cv2.INTER_AREA)
+    
     ret, bw = cv2.threshold(img, 190,255,cv2.THRESH_BINARY_INV)
 
-    # connectivity = 4
+    connectivity = 4
     nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(bw, connectivity, cv2.CV_32S)
     sizes = stats[1:, -1]; nb_components = nb_components - 1
     # min_size = 50 #threshhold value for small noisy components
@@ -17,7 +17,5 @@ def preprocess_test_image(img:np.array,connectivity,min_size,):
 
     res = cv2.bitwise_not(img2)
     res=res/255.
+    
     return res
-
-def test_model(anchor_image,validation_image):
-    siamese_model.predict([anchor_image,val_image])
