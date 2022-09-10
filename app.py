@@ -19,7 +19,7 @@ def get_model():
     return siamese_model
 
 
-st.set_page_config(layout="wide")
+st.set_page_config(layout="wide",page_title='Signature Verification Tool')
 
 headerSite=st.container()
 introduction=st.container()
