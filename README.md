@@ -12,7 +12,7 @@ The research paper I studied was [Siamese Neural Networks for One-shot Image Rec
 Here Siamese Network is introduced which is a couple of identical Convolutional Neural Network. An Anchor Image (Reference Image) is passed through one CNN and the validation image (which may or may not be forged) is passed through the other. Feature Vectors coming out these CNNs are then compared with Siamese Distance function which if then passed to a Single cell having sigmoid function. 
 
 Below is a diagram depicting the structure of Siamese Network.
-
+![model_plot](https://user-images.githubusercontent.com/70194206/189485451-64370502-0f7c-4ed9-a882-22aa83cd60df.png)
 
 For simplicity I am resizing all images to 100 x 200 px (height x width). 
 All images are converted to grayscale and the grayscale values are standardised.
@@ -22,3 +22,7 @@ I have combined two different datasets
 * [ICDAR 2009 Signature Verification Competition (SigComp2009)](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2009_Signature_Verification_Competition_(SigComp2009))
 * [ICDAR 2011 Signature Verification Competition (SigComp2011)](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2011_Signature_Verification_Competition_(SigComp2011))
 Code for combining dataset as per their different nomenclature is provided in notebooks folder.
+
+## Screenshots
+![image](https://user-images.githubusercontent.com/70194206/189485387-6832d19f-0b09-4a79-97ca-b390c5f577b5.png)
+![image](https://user-images.githubusercontent.com/70194206/189485431-1f368325-399d-41ce-ad33-49935281bc06.png)
