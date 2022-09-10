@@ -53,20 +53,20 @@ with testing:
     
     if anchor_file is not None:
         # Convert the file to an opencv image.
-        threshold_1=anchor_image_col.slider('Noise Threshold Size',0,400,5,key='threshold_1')
+        threshold_1=anchor_image_col.slider('Noise Threshold Size',0,400,1,key='threshold_1')
         anchor_bytes = np.asarray(bytearray(anchor_file.read()), dtype=np.uint8)
         anchor_image = cv2.imdecode(anchor_bytes, 0)
         anchor_image=preprocess_test_image(anchor_image,threshold_1)
-        anchor_image_col.image(anchor_image,use_column_width='always')
+        anchor_image_col.image(cv2.resize(anchor_image,(500,250),cv2.INTER_AREA))
         
 
     if validation_file is not None:
         # Convert the file to an opencv image.
-        threshold_2=validation_image_col.slider('Noise Threshold Size',0,400,5,key='threshold_2')
+        threshold_2=validation_image_col.slider('Noise Threshold Size',0,400,1,key='threshold_2')
         validation_bytes = np.asarray(bytearray(validation_file.read()), dtype=np.uint8)
         validation_image = cv2.imdecode(validation_bytes, 0)
         validation_image=preprocess_test_image(validation_image,threshold_2)
-        validation_image_col.image(validation_image,use_column_width='always')
+        validation_image_col.image(cv2.resize(validation_image,(500,250),cv2.INTER_AREA))
     
 with testing_button:
     st.subheader("Test Above Images")

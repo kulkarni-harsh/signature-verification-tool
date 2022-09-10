@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 def preprocess_test_image(img:np.array,min_size,):
     # Read in image from file path
-    
+    img=cv2.resize(img,(200,100),cv2.INTER_AREA)
     ret, bw = cv2.threshold(img, 190,255,cv2.THRESH_BINARY_INV)
 
     connectivity = 4
