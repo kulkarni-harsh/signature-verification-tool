@@ -1,3 +1,5 @@
+import os
+import gdown
 import numpy as np
 import cv2
 import streamlit as st
@@ -5,6 +7,15 @@ from functions import preprocess_test_image
 
 import tensorflow as tf
 from tensorflow.keras.layers import Layer
+
+MODEL_PATH="model/siamese_model.h5"
+DRIVE_ID = "1Zd9f79DMMtAqKUneP5wUxxyMUc-2KCED"
+
+@st.cache
+def download_model():
+    # Fetch data from URL here, and then clean it up.
+    if not os.path.isfile(MODEL_PATH):
+        gdown.download(id=DRIVE_ID, output=MODEL_PATH, quiet=False)
 
 def get_model():
     ## Siamese Distance class
@@ -14,12 +25,14 @@ def get_model():
 
         def call(self,input_embedding,validation_embedding):
             return tf.math.abs(input_embedding-validation_embedding)
-    siamese_model=tf.keras.models.load_model('model/siamese_model.h5',
+
+    siamese_model=tf.keras.models.load_model(MODEL_PATH,
                                          custom_objects={'L1Dist':L1Dist, 'BinaryFocalCrossentropy':tf.keras.losses.BinaryFocalCrossentropy})
     return siamese_model
 
 
 st.set_page_config(layout="wide",page_title='Signature Verification Tool')
+download_model()
 
 headerSite=st.container()
 introduction=st.container()
