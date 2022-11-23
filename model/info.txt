@@ -1,0 +1,2 @@
+This folder may be empty as model is not downloaded from the drive
+Load the streamlit app once to download the model
