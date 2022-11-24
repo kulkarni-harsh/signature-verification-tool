@@ -23,7 +23,8 @@ All images are converted to grayscale and the grayscale values are standardised.
 I have combined two different datasets
 * [ICDAR 2009 Signature Verification Competition (SigComp2009)](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2009_Signature_Verification_Competition_(SigComp2009))
 * [ICDAR 2011 Signature Verification Competition (SigComp2011)](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2011_Signature_Verification_Competition_(SigComp2011)) -- Only Dutch Signatures
-Code for combining dataset as per their different nomenclature is provided in notebooks folder.
+
+* Code for combining dataset as per their nomenclatures is provided in notebooks folder.
 
 ## Screenshots
 ![image](https://user-images.githubusercontent.com/70194206/189485387-6832d19f-0b09-4a79-97ca-b390c5f577b5.png)
